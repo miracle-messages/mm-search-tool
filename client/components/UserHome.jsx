@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import axios from 'axios';
 
-import Client from './Client';
+import DataTable from './DataTable';
 
 class UserHome extends Component {
   constructor() {
@@ -11,7 +11,11 @@ class UserHome extends Component {
       clients: [],
       client: {},
       selectedOption: {},
-    }
+    };
+
+    this.fetchClients = this.fetchClients.bind(this);
+    this.fetchOneClient = this.fetchOneClient.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
@@ -43,17 +47,19 @@ class UserHome extends Component {
     return (
       <div>
         <Select
-          name="form-field-name"
-          placeholder="Type Client Name"
+          name='form-field-name'
+          placeholder='Type client name'
           value={selectedOption}
-          onChange={this.handleChange}
           options={optionItems}
+          onChange={this.handleChange}
           autoFocus={true}
           scrollMenuIntoView={false}
-          className="home-select"
+          clearable={false}
+          className='home-select'
+          optionClassName='home-option'
         />
         {
-          userSelected && <Client clientData={client} />
+          userSelected && <DataTable clientData={client} />
         }
       </div>
     );

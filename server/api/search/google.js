@@ -1,17 +1,17 @@
 const {google} = require('googleapis');
 const credentials = require('../../../secrets.js').googleSheets;
 
-const auth = new google.auth.JWT(
-    credentials.client_email,
-    null,
-    credentials.private_key,
-    [
-        'https://www.googleapis.com/auth/spreadsheets',
-    ],
-    null,
+const getGoogleAuth = () => (
+    new google.auth.JWT(
+        credentials.client_email,
+        null,
+        credentials.private_key,
+        ['https://www.googleapis.com/auth/spreadsheets'],
+        null,
+    )
 );
 
-google.options({auth});
+google.options({auth: getGoogleAuth()});
 
 const sheets = google.sheets('v4');
 const {spreadsheetId} = credentials;
@@ -35,6 +35,13 @@ const getClientNames = (req, res, next) => {
     });
 };
 
+const COLD_CASE_URI = 'Cold Case';
+
+function isColdCaseColumn(columnName) {
+    const COLD_CASE_SPREADSHEET_COLUMN_NAME = 'Case Managers_if you mark';
+    return columnName.startsWith(COLD_CASE_SPREADSHEET_COLUMN_NAME);
+}
+
 const getClientById = (req, res, next) => {
     const {id} = req.params;
     const row = parseInt(id, 10) + 2;
@@ -49,13 +56,10 @@ const getClientById = (req, res, next) => {
         const [keysRaw, valuesRaw] = response.data.valueRanges;
         const keys = keysRaw.values[0];
         const values = valuesRaw.values[0];
-        const client = keys.reduce((obj, key, i) => {
-            const newObj = {...obj};
-            let newKey = key;
-            if (key.startsWith('Case Managers_if you mark')) newKey = 'Cold Case';
-
-            newObj[newKey] = values[i];
-            return newObj;
+        const client = keys.reduce((accum, key, i) => {
+            return isColdCaseColumn(key)
+                ? {...accum, [COLD_CASE_URI]: values[i]}
+                : {...accum, [key]: values[i]};
         }, {});
         return res.json(client);
     });
