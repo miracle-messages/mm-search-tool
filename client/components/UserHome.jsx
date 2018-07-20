@@ -1,23 +1,69 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
+import React, {Component} from 'react';
+import Select from 'react-select';
+import axios from 'axios';
 
-export const UserHome = props => {
-  const {email} = props;
+import DataTable from './DataTable';
 
-  return (
-    <div>
-      <h3>Welcome, {email}</h3>
-    </div>
-  );
-};
+class UserHome extends Component {
+  constructor() {
+    super();
+    this.state = {
+      clients: [],
+      client: {},
+      selectedOption: {},
+    };
 
-const mapState = state => ({
-    email: state.user.email
-  });
+    this.fetchClients = this.fetchClients.bind(this);
+    this.fetchOneClient = this.fetchOneClient.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
 
-export default connect(mapState)(UserHome);
+  componentDidMount() {
+    this.fetchClients();
+  }
 
-UserHome.propTypes = {
-  email: PropTypes.string
-};
+  async fetchClients() {
+    const response = await axios.get('/api/search');
+    this.setState({clients: response.data});
+  }
+
+  async fetchOneClient(id) {
+    const response = await axios.get(`/api/search/${id}`);
+    this.setState({client: response.data});
+  }
+
+  handleChange(selectedOption) {
+    this.setState({selectedOption});
+    if (selectedOption) {
+      this.fetchOneClient(selectedOption.value);
+    }
+  }
+
+  render() {
+    const {client, clients, selectedOption} = this.state;
+    const optionItems = clients.map(({name, id}) => ({label: name, value: id}));
+    const userSelected = !!Object.keys(client).length;
+
+    return (
+      <div>
+        <Select
+          name='form-field-name'
+          placeholder='Type client name'
+          value={selectedOption}
+          options={optionItems}
+          onChange={this.handleChange}
+          autoFocus={true}
+          scrollMenuIntoView={false}
+          clearable={false}
+          className='home-select'
+          optionClassName='home-option'
+        />
+        {
+          userSelected && <DataTable clientData={client} />
+        }
+      </div>
+    );
+  }
+}
+
+export default UserHome;
