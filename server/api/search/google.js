@@ -1,11 +1,13 @@
 const {google} = require('googleapis');
-const credentials = require('../../../secrets.js').googleSheets;
+const {googleSheets} = require('./../../../secrets.json');
+
+const {clientEmail, privateKey, spreadsheetId} = googleSheets;
 
 const getGoogleAuth = () => (
     new google.auth.JWT(
-        credentials.client_email,
+        clientEmail,
         null,
-        credentials.private_key,
+        privateKey,
         ['https://www.googleapis.com/auth/spreadsheets'],
         null,
     )
@@ -14,7 +16,6 @@ const getGoogleAuth = () => (
 google.options({auth: getGoogleAuth()});
 
 const sheets = google.sheets('v4');
-const {spreadsheetId} = credentials;
 
 const getClientNames = (req, res, next) => {
     const options = {
@@ -56,11 +57,11 @@ const getClientById = (req, res, next) => {
         const [keysRaw, valuesRaw] = response.data.valueRanges;
         const keys = keysRaw.values[0];
         const values = valuesRaw.values[0];
-        const client = keys.reduce((accum, key, i) => {
-            return isColdCaseColumn(key)
+        const client = keys.reduce((accum, key, i) => (
+            isColdCaseColumn(key)
                 ? {...accum, [COLD_CASE_URI]: values[i]}
-                : {...accum, [key]: values[i]};
-        }, {});
+                : {...accum, [key]: values[i]}
+        ), {});
         return res.json(client);
     });
 };
