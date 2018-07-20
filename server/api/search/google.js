@@ -24,16 +24,12 @@ const getClientNames = (req, res, next) => {
     };
 
     sheets.spreadsheets.values.get(options, (err, response) => {
-        if (err) {
-            next(err);
-            return;
-        }
+        if (err) return next(err);
 
-        console.log(response.data);
         const clients = response.data.values;
         let data = clients.map( (name, i) => {
             name = name[0];
-            let id = i;
+            let id = parseInt(i) + 1;
             return { id, name };
         });
         return res.json(data);
@@ -50,38 +46,19 @@ const getClientById = (req, res, next) => {
     };
 
     sheets.spreadsheets.values.batchGet(options, (err, response) => {
-        if (err) {
-            next(err);
-            return;
-        }
+        if (err) return next(err);
 
         const [ keysRaw, valuesRaw ] = response.data.valueRanges;
-        const keys = keysRaw.values[0].map(key => key.toLowerCase().replace(/\s/g, '_'));
+        const keys = keysRaw.values[0];
         const values = valuesRaw.values[0];
         const client = keys.reduce( (obj, key, i) => {
+            if (key.startsWith('Case Managers_if you mark') ) key = 'Cold Case'
             obj[key] = values[i];
             return obj;
         }, {});
         return res.json(client);
     });
 };
-
-
-/*
-app.post('/clients', (req, res) => {
-    sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: 'Cases!all',
-        valueInputOption: 'USER_ENTERED',
-        includeValuesInResponse: true,
-        resource: {
-            values: [[req.body.name, req.body.count]]
-        }
-    }, (err, response) => {
-        res.send(response.updates)
-    })
-})
-*/
 
 module.exports = {
     getClientNames,

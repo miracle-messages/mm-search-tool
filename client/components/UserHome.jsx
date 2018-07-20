@@ -1,23 +1,61 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import Select from 'react-select';
+import axios from 'axios';
 
-export const UserHome = props => {
-  const {email} = props;
+import Client from './Client';
 
-  return (
-    <div>
-      <h3>Welcome, {email}</h3>
-    </div>
-  );
-};
+export default class UserHome extends Component {
+  constructor(){
+    super();
+    this.state = {
+      clients: [],
+      client: {},
+      selectedOption: {},
+    }
+  }
 
-const mapState = state => ({
-    email: state.user.email
-  });
+  componentDidMount() {
+    this.fetchClients();
+  }
 
-export default connect(mapState)(UserHome);
+  fetchClients = async () => {
+    const response = await axios.get('/api/search');
+    this.setState({clients: response.data});
+  }
 
-UserHome.propTypes = {
-  email: PropTypes.string
+  fetchOneClient = async (id) => {
+    const response = await axios.get(`/api/search/${id}`);
+    this.setState({client: response.data});
+  }
+
+  handleChange = (selectedOption) => {
+    this.setState({ selectedOption });
+    if (selectedOption) {
+      this.fetchOneClient(selectedOption.value);
+    }
+  }
+
+  render() {
+    const { client, clients, selectedOption } = this.state;
+    const optionItems = clients.map( ({name, id}) => ({label: name, value: id}));
+    const userSelected = !!Object.keys(client).length;
+
+    return (
+      <div>
+        <Select
+          name="form-field-name"
+          placeholder="Type Client Name"
+          value={selectedOption}
+          onChange={this.handleChange}
+          options={optionItems}
+          autoFocus={true}
+          scrollMenuIntoView={false}
+          className="home-select"
+        />
+        {
+          userSelected && <Client clientData={client}/>
+        }
+      </div>
+    );
+  }
 };

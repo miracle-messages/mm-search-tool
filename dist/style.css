@@ -19,3 +19,26 @@ form div {
   margin: 1em;
   display: inline-block;
 }
+
+.home-select input {
+  min-width: 200px;
+  min-height: 30px;
+  border: 1px solid green;
+  margin: 5px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  overflow: hidden;
+}
+
+td, th{
+  border-top: 1px solid #ECF0F1;
+  padding: 10px;
+}
+
+tr:nth-of-type(even) td{
+  background-color: #DAF4F2;
+}
