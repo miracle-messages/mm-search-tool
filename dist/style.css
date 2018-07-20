@@ -20,11 +20,20 @@ form div {
   display: inline-block;
 }
 
+.home-select {
+  border: 1px solid green;
+}
+
 .home-select input {
   min-width: 200px;
   min-height: 30px;
-  border: 1px solid green;
+  border: 1px solid lightgrey;
   margin: 5px 0;
+}
+
+.Select-clear-zone {
+  margin-left: 15px;
+  font-size: 25px;
 }
 
 table {

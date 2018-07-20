@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import Select from 'react-select';
 import axios from 'axios';
 
 import Client from './Client';
 
-export default class UserHome extends Component {
-  constructor(){
+class UserHome extends Component {
+  constructor() {
     super();
     this.state = {
       clients: [],
@@ -18,26 +18,26 @@ export default class UserHome extends Component {
     this.fetchClients();
   }
 
-  fetchClients = async () => {
+  async fetchClients() {
     const response = await axios.get('/api/search');
     this.setState({clients: response.data});
   }
 
-  fetchOneClient = async (id) => {
+  async fetchOneClient(id) {
     const response = await axios.get(`/api/search/${id}`);
     this.setState({client: response.data});
   }
 
-  handleChange = (selectedOption) => {
-    this.setState({ selectedOption });
+  handleChange(selectedOption) {
+    this.setState({selectedOption});
     if (selectedOption) {
       this.fetchOneClient(selectedOption.value);
     }
   }
 
   render() {
-    const { client, clients, selectedOption } = this.state;
-    const optionItems = clients.map( ({name, id}) => ({label: name, value: id}));
+    const {client, clients, selectedOption} = this.state;
+    const optionItems = clients.map(({name, id}) => ({label: name, value: id}));
     const userSelected = !!Object.keys(client).length;
 
     return (
@@ -53,9 +53,11 @@ export default class UserHome extends Component {
           className="home-select"
         />
         {
-          userSelected && <Client clientData={client}/>
+          userSelected && <Client clientData={client} />
         }
       </div>
     );
   }
-};
+}
+
+export default UserHome;

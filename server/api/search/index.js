@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getClientNames, getClientById } = require('./google');
+const {getClientNames, getClientById} = require('./google');
 
 module.exports = router;
 
