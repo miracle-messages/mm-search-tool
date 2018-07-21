@@ -4,41 +4,49 @@ import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import {logout} from '../store';
 
-const Navbar = ({handleClick, isLoggedIn}) => (
-  <div>
-    <h1>MIRACLE MESSAGES</h1>
-    <nav>
-      {isLoggedIn ? (
-        <div>
-          <Link to="/home">Home</Link>
-          <a href="#" onClick={handleClick}>
-            Logout
-          </a>
-        </div>
-      ) : (
-        <div>
-          <Link to="/login">Login</Link>
-          <Link to="/signup">Sign Up</Link>
-        </div>
-      )}
-    </nav>
-    <hr />
-  </div>
-);
+function mapStateToProps(state) {
+    return {
+        isLoggedIn: !!state.user.id,
+    };
+}
 
-const mapState = state => ({
-    isLoggedIn: !!state.user.id
-  });
+function mapDispatchToProps(dispatch) {
+    return {
+        handleLogout: () => dispatch(logout()),
+    };
+}
 
-const mapDispatch = dispatch => ({
-    handleClick() {
-      dispatch(logout());
+function renderContent(isLoggedIn, handleLogout) {
+    if (isLoggedIn) {
+        return <div>
+            <Link to='/home'>Home</Link>
+            <button
+                type='button'
+                onClick={handleLogout}
+            >
+                Logout
+            </button>
+        </div>;
+    } else {
+        return <div>
+            <Link to='/login'>Login</Link>
+            <Link to='/signup'>Sign Up</Link>
+        </div>;
     }
-  });
+}
 
-export default connect(mapState, mapDispatch)(Navbar);
+function Navbar({handleLogout, isLoggedIn}) {
+    return <div>
+        <h1>MIRACLE MESSAGES</h1>
+        <nav>
+            {renderContent(isLoggedIn, handleLogout)}
+        </nav>
+    </div>;
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);
 
 Navbar.propTypes = {
-  handleClick: PropTypes.func.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired
+    handleLogout: PropTypes.func.isRequired,
+    isLoggedIn: PropTypes.bool.isRequired,
 };

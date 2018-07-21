@@ -5,42 +5,46 @@ import PropTypes from 'prop-types';
 import {Login, Signup, UserHome} from './components';
 import {me} from './store';
 
-class Routes extends Component {
-  componentDidMount() {
-    this.props.loadInitialData();
-  }
-
-  render() {
-    const {isLoggedIn} = this.props;
-
-    return (
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/signup" component={Signup} />
-        {isLoggedIn && (
-          <Switch>
-            <Route path="/home" component={UserHome} />
-          </Switch>
-        )}
-        <Route component={Login} />
-      </Switch>
-    );
-  }
+function mapStateToProps(state) {
+    return {
+        isLoggedIn: !!state.user.id,
+    };
 }
 
-const mapState = state => ({
-    isLoggedIn: !!state.user.id
-  });
+function mapDispatchToProps(dispatch) {
+    return {
+        fetchUser: () => dispatch(me()),
+    };
+}
 
-const mapDispatch = dispatch => ({
-    loadInitialData() {
-      dispatch(me());
+class Routes extends Component {
+    componentDidMount() {
+        this.props.fetchUser();
     }
-  });
 
-export default withRouter(connect(mapState, mapDispatch)(Routes));
+    render() {
+        return <Switch>
+            <Route path='/login' component={Login} />
+            <Route path='/signup' component={Signup} />
+            {this.renderLoggedInRoutes()}
+            <Route component={Login} />
+        </Switch>;
+    }
+
+    renderLoggedInRoutes() {
+        if (this.props.isLoggedIn) {
+            return <Switch>
+                <Route path='/home' component={UserHome} />
+            </Switch>;
+        } else {
+            return null;
+        }
+    }
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Routes));
 
 Routes.propTypes = {
-  loadInitialData: PropTypes.func.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired
+    fetchUser: PropTypes.func,
+    isLoggedIn: PropTypes.bool.isRequired,
 };

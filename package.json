@@ -11,15 +11,15 @@
     "build-client": "webpack",
     "build-client-watch": "webpack -w",
     "deploy": "script/deploy",
-    "lint": "eslint ./ --ignore-path .gitignore",
-    "lint-fix": "npm run lint -- --fix",
+    "lint": "eslint ./ --ext .jsx --ext .js --ignore-path .gitignore",
+    "lint-fix": "npm run lint --fix",
     "precommit": "# npm run lint # un-comment to enable",
     "postinstall": "touch secrets.js",
     "seed": "node script/seed.js",
     "start": "node server",
     "start-dev": "NODE_ENV='development' npm run build-client-watch & npm run start-server",
     "start-server": "nodemon server -e html,js,scss --ignore dist --ignore client",
-    "test": "NODE_ENV='test' mocha \"./server/tests/index.spec.js\" \"./client/tests/*.spec.jsx\" --require @babel/polyfill --require @babel/register"
+    "test": "NODE_ENV='test' mocha \"./server/tests/index.spec.js\" --require @babel/polyfill --require @babel/register"
   },
   "dependencies": {
     "@babel/core": "7.0.0-beta.51",
